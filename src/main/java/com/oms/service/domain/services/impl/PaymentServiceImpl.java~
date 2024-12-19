@@ -1,0 +1,60 @@
+package com.oms.service.domain.services.impl;
+
+import com.oms.service.app.dtos.Payment.InitPaymentDto;
+import com.oms.service.app.dtos.Payment.QuerydrPaymentDto;
+import com.oms.service.config.VnPayConfig;
+import com.oms.service.domain.Utils.VnPayUtil;
+import com.oms.service.domain.services.PaymentService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.TimeZone;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class PaymentServiceImpl implements PaymentService {
+	private final VnPayConfig vnPayConfig;
+	@Override
+	public String createVnPayUrl(InitPaymentDto initPaymentDto) {
+		Long amount = initPaymentDto.getAmount() * 100L;
+
+		String ref=initPaymentDto.getTxnRef();
+		Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
+		vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
+		vnpParamsMap.put("vnp_TxnRef", ref);
+		vnpParamsMap.put("vnp_IpAddr", initPaymentDto.getIpAddress());
+
+		//build query url
+		String queryUrl = VnPayUtil.getPaymentURL(vnpParamsMap, true);
+		String hashData = VnPayUtil.getPaymentURL(vnpParamsMap, false);
+		String vnpSecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), hashData);
+		queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
+		return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
+	}
+	@Override
+	public String createVnPayUrlQuery(QuerydrPaymentDto querydrPaymentDto) {
+		Map<String, String> vnpParamsMap = vnPayConfig.getVNPayQueryConfig();
+		vnpParamsMap.put("vnp_RequestId", querydrPaymentDto.getRequestId());
+		vnpParamsMap.put("vnp_TxnRef", querydrPaymentDto.getTxnRef());
+		vnpParamsMap.put("vnp_OrderInfo", querydrPaymentDto.getOrderInfo());
+		vnpParamsMap.put("vnp_TransactionNo",querydrPaymentDto.getTransactionNo());
+		vnpParamsMap.put("vnp_IpAddr", querydrPaymentDto.getRequestId());
+		vnpParamsMap.put("vnp_TransactionDate", querydrPaymentDto.getTransactionDate());
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+		String vnpCreateDate = formatter.format(calendar.getTime());
+		vnpParamsMap.put("vnp_CreateDate", vnpCreateDate);
+		//build query url
+		String queryUrl = VnPayUtil.getPaymentURL(vnpParamsMap, true);
+		String data=querydrPaymentDto.getRequestId() + "|" + vnpParamsMap.get("vnp_Version") + "|" + vnpParamsMap.get("vnp_Command") + "|" + vnpParamsMap.get("vnp_TmnCode") + "|" + vnpParamsMap.get("vnp_TxnRef") +  "|" + vnpParamsMap.get("vnp_TransactionDate") + "|" +  vnpParamsMap.get("vnp_CreateDate") + "|" +vnpParamsMap.get("vnp_IpAddr") + "|" + vnpParamsMap.get("vnp_OrderInfo");
+		log.info(data);
+		String vnpSecureHash = VnPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), data);
+		queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
+		return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
+	}
+}

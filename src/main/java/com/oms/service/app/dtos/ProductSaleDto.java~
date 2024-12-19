@@ -1,0 +1,2 @@
+package com.oms.service.app.dtos;public class ProductSaleDto {
+}

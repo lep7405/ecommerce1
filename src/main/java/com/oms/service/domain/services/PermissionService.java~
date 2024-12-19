@@ -1,0 +1,11 @@
+package com.oms.service.domain.services;
+
+import com.oms.service.app.dtos.Role.PermissionDto;
+import com.oms.service.app.response.Role.PermissionResponse;
+
+public interface PermissionService {
+	PermissionResponse createPermission(PermissionDto permissionDto);
+	PermissionResponse updatePermission(Long id,PermissionDto permissionDto);
+
+//	PermissionResponse getPermission(Long id);
+}

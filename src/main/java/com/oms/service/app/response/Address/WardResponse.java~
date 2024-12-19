@@ -1,0 +1,2 @@
+package com.oms.service.app.response.Address;public class WardResponse {
+}

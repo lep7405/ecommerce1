@@ -1,0 +1,78 @@
+server:
+  port: ${PORT:8088}
+#  servlet:
+#    context-path: /email
+spring:
+  mvc:
+    dispatch-options-request: true
+  application:
+    name: EMAIL-SERVICE
+    environment: ${ENVIRONMENT:DEV}
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          jsonb: com.vladmihalcea.hibernate.type.json.JsonBinaryType
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      register-types: auto
+      generate_statistics: true
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test_role
+    username: postgres
+    password: icehot2001
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:5000}
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:100}
+      max-lifetime: ${DB_MAX_LIFETIME:1000000}
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+      enabled: true
+      file-size-threshold: 2KB
+telegram:
+  chatId: ${TELEGRAM_CHAT_ID:chat_id}
+  apiToken: ${TELEGRAM_API_TOKEN:token}
+debug: ${DEBUG:true}
+ommani:
+  sso-service: http://localhost:8089
+async:
+  config:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:3}
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure: INFO
+      hibernate.stat: DEBUG
+
+payment:
+  vnPay:
+    url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    returnUrl: "http://localhost:8088/api/v1/payment/vn-pay-callback"
+    tmnCode: "HT5MGSBB"
+    secretKey: "PJ1ONZIPZPYXMZXTSM6QXQR6G96N1ZA0"
+    version: "2.1.0"
+    command: "pay"
+    orderType: "other"
+
+jwt:
+  expirationMs: 86400000
+  refreshExpirationMs: 864000000
+  refreshSecret: rU8gSVL5RZ460yJOYkWk0YbLgKTdp3ruuKOt9ddkd19wMUEVWi
+  secret: 4dN3bu1pm4FSA0YKyEBluatqucc3UktG3fobnhXtPdZd7Iovjl
+aws:
+  s3:
+    bucket-name:
+    accessKey:
+    secretKey:
+

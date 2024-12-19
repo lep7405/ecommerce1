@@ -1,0 +1,33 @@
+package com.oms.service.app.controllers;
+
+import com.oms.service.app.dtos.Role.ModelDto;
+import com.oms.service.app.response.ApiResponse;
+import com.oms.service.domain.entities.Role.Model;
+import com.oms.service.domain.repositories.Role.ModelRepository;
+import com.oms.service.domain.services.ModelService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/model")
+@Slf4j
+public class ModelController {
+	private final ModelService modelService;
+	private final ModelRepository modelRepository;
+	@PostMapping
+	public ApiResponse<ModelResponse> createResponse(@RequestBody @Valid ModelDto modelDto){
+		return new ApiResponse<>(HttpStatus.OK.value(),modelService.createModel(modelDto));
+	}
+
+	@GetMapping("/{id}")
+	public Model getModel(@PathVariable("id") Long id) {
+		return modelRepository.getById(id);
+	}
+}
+
+
